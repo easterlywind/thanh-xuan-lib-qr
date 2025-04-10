@@ -132,7 +132,7 @@ const QRScanner: React.FC<QRScannerProps> = ({ onScan, onClose }) => {
         Đưa mã QR vào khung hình để quét
       </div>
 
-      <style>{`
+      <style jsx>{`
         @keyframes scan {
           0% { top: 0; }
           50% { top: calc(100% - 4px); }

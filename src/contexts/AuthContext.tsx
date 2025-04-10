@@ -1,5 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { authApi } from '@/services/apiService';
 
 export type UserRole = 'librarian' | 'student';
 
@@ -17,7 +18,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
 }
 
-// Mock users for demonstration
+// Mock users for demonstration (will be replaced by API calls in production)
 const MOCK_USERS = [
   {
     id: '1',
@@ -63,19 +64,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
   
   const login = async (username: string, password: string): Promise<boolean> => {
-    // In a real app, this would be an API call
-    const foundUser = MOCK_USERS.find(
-      u => u.username === username && u.password === password
-    );
-    
-    if (foundUser) {
-      const { password, ...userWithoutPassword } = foundUser;
-      setUser(userWithoutPassword);
-      localStorage.setItem('libUser', JSON.stringify(userWithoutPassword));
-      return true;
+    try {
+      // In a real app with backend integration:
+      // const response = await authApi.login(username, password);
+      // if (response.success && response.user) {
+      //   setUser(response.user);
+      //   localStorage.setItem('libUser', JSON.stringify(response.user));
+      //   return true;
+      // }
+      
+      // For now, we'll use mock data:
+      const foundUser = MOCK_USERS.find(
+        u => u.username === username && u.password === password
+      );
+      
+      if (foundUser) {
+        const { password, ...userWithoutPassword } = foundUser;
+        setUser(userWithoutPassword);
+        localStorage.setItem('libUser', JSON.stringify(userWithoutPassword));
+        return true;
+      }
+      
+      return false;
+    } catch (error) {
+      console.error('Login error:', error);
+      return false;
     }
-    
-    return false;
   };
   
   const logout = () => {

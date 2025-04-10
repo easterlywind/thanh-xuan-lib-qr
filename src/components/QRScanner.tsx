@@ -14,7 +14,6 @@ const QRScanner: React.FC<QRScannerProps> = ({ onScan, onClose }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const requestRef = useRef<number>();
-  const timeoutRef = useRef<NodeJS.Timeout>();
 
   const initCamera = async () => {
     try {
@@ -37,14 +36,54 @@ const QRScanner: React.FC<QRScannerProps> = ({ onScan, onClose }) => {
     }
   };
 
+  // In a real application, you would use a QR code library like jsQR
+  // Here we're using a simplified version for demo purposes
   const startScanning = () => {
-    // Simulating QR code detection (in a real app, you would use a QR code library)
-    timeoutRef.current = setTimeout(() => {
-      // For demo purposes, we'll simulate finding a QR code after 3 seconds
-      const mockQRData = `STUDENT:${Math.floor(Math.random() * 3) + 2}`; // Random student ID 2-4
-      onScan(mockQRData);
-      stopScanning();
-    }, 3000);
+    if (!videoRef.current || !canvasRef.current) return;
+    
+    const canvas = canvasRef.current;
+    const context = canvas.getContext('2d');
+    if (!context) return;
+    
+    const scan = () => {
+      if (!videoRef.current || !context) return;
+      
+      if (videoRef.current.readyState === videoRef.current.HAVE_ENOUGH_DATA) {
+        // Set canvas dimensions to match video
+        canvas.height = videoRef.current.videoHeight;
+        canvas.width = videoRef.current.videoWidth;
+        
+        // Draw video frame to canvas
+        context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+        
+        // In a real application, you would process the image data with jsQR here
+        // For demo, we'll simulate QR detection after a few seconds
+        if (scanning) {
+          setTimeout(() => {
+            // Simulate QR code detection with a student ID
+            const studentId = Math.floor(Math.random() * 3) + 2; // Random student ID 2-4
+            const mockQRData = `STUDENT:${studentId}`;
+            
+            // Provide feedback to the user
+            toast.success('Quét mã QR thành công');
+            
+            // Pass the result back
+            onScan(mockQRData);
+            
+            // Stop scanning after successful detection
+            stopScanning();
+          }, 3000);
+          
+          // Prevent multiple simulated detections
+          setScanning(false);
+        }
+      }
+      
+      // Continue scanning
+      requestRef.current = requestAnimationFrame(scan);
+    };
+    
+    requestRef.current = requestAnimationFrame(scan);
   };
 
   const stopScanning = () => {
@@ -58,10 +97,6 @@ const QRScanner: React.FC<QRScannerProps> = ({ onScan, onClose }) => {
     
     if (requestRef.current) {
       cancelAnimationFrame(requestRef.current);
-    }
-    
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
     }
   };
 
@@ -132,7 +167,7 @@ const QRScanner: React.FC<QRScannerProps> = ({ onScan, onClose }) => {
         Đưa mã QR vào khung hình để quét
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes scan {
           0% { top: 0; }
           50% { top: calc(100% - 4px); }

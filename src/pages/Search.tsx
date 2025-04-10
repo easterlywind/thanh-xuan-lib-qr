@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -14,7 +13,8 @@ import {
 } from "@/components/ui/select";
 import { BookOpen, Search as SearchIcon, Edit, Trash2 } from 'lucide-react';
 import { Book } from '@/types';
-import { MOCK_BOOKS } from '@/mock/data';
+import { booksApi } from '@/services/apiService';
+import { toast } from 'sonner';
 
 const Search = () => {
   const { user } = useAuth();
@@ -22,21 +22,43 @@ const Search = () => {
   const [searchCategory, setSearchCategory] = useState('all');
   const [searchResults, setSearchResults] = useState<Book[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
+  const [allBooks, setAllBooks] = useState<Book[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   
   const isLibrarian = user?.role === 'librarian';
 
-  const categories = Array.from(new Set(MOCK_BOOKS.map(book => book.category)));
+  useEffect(() => {
+    // Load all books on component mount
+    const fetchBooks = async () => {
+      try {
+        setIsLoading(true);
+        const books = await booksApi.getAll();
+        setAllBooks(books);
+        // Extract unique categories
+        const uniqueCategories = Array.from(new Set(books.map(book => book.category)));
+        setCategories(uniqueCategories);
+      } catch (error) {
+        console.error('Failed to fetch books:', error);
+        toast.error('Failed to load books');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchBooks();
+  }, []);
 
   const handleSearch = () => {
     const term = searchTerm.toLowerCase().trim();
     
     if (!term && searchCategory === 'all') {
-      setSearchResults(MOCK_BOOKS);
+      setSearchResults(allBooks);
       setHasSearched(true);
       return;
     }
     
-    let results = [...MOCK_BOOKS];
+    let results = [...allBooks];
     
     // Filter by category if not "all"
     if (searchCategory !== 'all') {
@@ -68,10 +90,20 @@ const Search = () => {
     console.log('Edit book:', book);
   };
 
-  const handleDelete = (book: Book) => {
-    // In a real application, this would show a confirmation dialog
-    // and then delete the book
-    console.log('Delete book:', book);
+  const handleDelete = async (book: Book) => {
+    if (!isLibrarian || !book.id) return;
+    
+    try {
+      await booksApi.delete(book.id);
+      // Remove the book from the search results
+      setSearchResults(prev => prev.filter(b => b.id !== book.id));
+      // Also remove from allBooks
+      setAllBooks(prev => prev.filter(b => b.id !== book.id));
+      toast.success(`"${book.title}" has been deleted.`);
+    } catch (error) {
+      console.error('Failed to delete book:', error);
+      toast.error('Failed to delete book.');
+    }
   };
 
   return (
@@ -123,9 +155,10 @@ const Search = () => {
           <Button 
             onClick={handleSearch} 
             className="mt-4 bg-library-primary w-full md:w-auto"
+            disabled={isLoading}
           >
             <SearchIcon size={18} className="mr-2" />
-            Tìm kiếm
+            {isLoading ? 'Loading...' : 'Tìm kiếm'}
           </Button>
         </CardContent>
       </Card>

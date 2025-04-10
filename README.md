@@ -1,73 +1,96 @@
-# Welcome to your Lovable project
 
-## Project info
+# Library Management System
 
-**URL**: https://lovable.dev/projects/b302a3da-3beb-4fc4-b2b5-98a579292b5e
+This is a library management system for Thanh Xuan High School with features for book management, borrowing/returning books, student management, and reporting.
 
-## How can I edit this code?
+## Features
 
-There are several ways of editing your application.
+- Authentication system with role-based access control
+- Book management (add, edit, delete books)
+- QR code scanning for student identification
+- Borrowing and returning books
+- Book search and filtering
+- User management (block/unblock students)
+- Notifications for due dates and available books
+- Reports and statistics
 
-**Use Lovable**
+## Getting Started
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/b302a3da-3beb-4fc4-b2b5-98a579292b5e) and start prompting.
+### Prerequisites
 
-Changes made via Lovable will be committed automatically to this repo.
+- Node.js (v16+)
+- MySQL (v8+)
 
-**Use your preferred IDE**
+### Database Setup
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+1. Create a MySQL database:
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+```bash
+mysql -u root -p < server/database/schema.sql
+mysql -u root -p < server/database/seed.sql
+```
 
-Follow these steps:
+2. Configure your database connection in the `.env` file:
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+```
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=your_password_here
+DB_NAME=library_management
+PORT=5000
+```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### Installation
 
-# Step 3: Install the necessary dependencies.
-npm i
+1. Clone the repository:
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```bash
+git clone https://github.com/yourusername/library-management-system.git
+cd library-management-system
+```
+
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+3. Start the backend server:
+
+```bash
+node server/server.js
+```
+
+4. Start the frontend development server:
+
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+5. Access the application at http://localhost:5173
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Login Credentials
 
-**Use GitHub Codespaces**
+### Librarian
+- Username: librarian
+- Password: password123
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Students
+- Username: student1
+- Password: password123
 
-## What technologies are used for this project?
+- Username: student2
+- Password: password123
 
-This project is built with:
+## Project Structure
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/b302a3da-3beb-4fc4-b2b5-98a579292b5e) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes it is!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+- `/src` - Frontend React application
+  - `/components` - Reusable UI components
+  - `/contexts` - React contexts for state management
+  - `/hooks` - Custom React hooks
+  - `/pages` - Application pages
+  - `/services` - API service layer
+  - `/types` - TypeScript type definitions
+  - `/mock` - Mock data for development
+- `/server` - Backend Express server
+  - `/database` - Database schema and seed files
